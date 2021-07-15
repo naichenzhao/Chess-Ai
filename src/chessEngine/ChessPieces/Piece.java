@@ -9,18 +9,23 @@ import java.util.*;
 
 public abstract class Piece {
 
-    protected final int piecePosition;
-    protected final Alliance pieceAlliance;
+    protected final int position;
+    protected final Alliance alliance;
+    protected final boolean isFirtMove;
 
-    Piece(final int piecePosition, final Alliance pieceAlliance){
-        this.pieceAlliance = pieceAlliance;
-        this.piecePosition = piecePosition;
+    Piece(final int position, final Alliance pieceAlliance){
+        this.alliance = pieceAlliance;
+        this.position = position;
+        isFirtMove = false;
     }
 
-    public Alliance getPieceAlliance(){
-        return this.pieceAlliance;
+    public Alliance getAlliance(){
+        return this.alliance;
     }
 
     public abstract Collection<Move> calculateLegalMoves(final Board board);
 
+    public boolean isFirstMove() {
+        return isFirtMove;
+    }
 }
