@@ -16,8 +16,8 @@ public class Pawn extends Piece{
 
     private final static int[] CANDIDATE_MOVE_COORDINATES = {7, 8, 9, 16};
 
-    Pawn(int position, Alliance pieceAlliance) {
-        super(position, pieceAlliance);
+    public Pawn(int position, Alliance pieceAlliance) {
+        super(PieceType.PAWN, position, pieceAlliance);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class Pawn extends Piece{
                     legalMoves.add(new StandardMove(board, this, target));
                 }
             } else if (candidateOffset == 7 &&
-                    !((EIGTH_COLUMN[this.position] && alliance.isWhite()) ||
+                    !((EIGHTH_COLUMN[this.position] && alliance.isWhite()) ||
                     (FIRST_COLUMN[this.position] && alliance.isBlack()))) {
                 // Handles attacking
                 if(board.getTile(target).isTileOccupied()) {
@@ -54,7 +54,7 @@ public class Pawn extends Piece{
                 }
             } else if (candidateOffset == 9 &&
                     !((FIRST_COLUMN[this.position] && alliance.isWhite()) ||
-                    (EIGTH_COLUMN[this.position] && alliance.isBlack()))) {
+                    (EIGHTH_COLUMN[this.position] && alliance.isBlack()))) {
                 // Handles attacking
                 if(board.getTile(target).isTileOccupied()) {
                     final Piece targetPiece = board.getTile(target).getPiece();
@@ -69,6 +69,10 @@ public class Pawn extends Piece{
         return ImmutableList.copyOf(legalMoves);
     }
 
+    @Override
+    public String toString() {
+        return PieceType.PAWN.toString();
+    }
 
     public boolean checkStartingPosition() {
         return (SECOND_ROW[this.position] && this.getAlliance().isBlack()) ||

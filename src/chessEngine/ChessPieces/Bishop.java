@@ -14,12 +14,12 @@ import java.util.List;
 
 import static chessEngine.ChessBoard.BoardUtils.*;
 
-public class Bishop extends Piece{
+public class Bishop extends Piece {
 
     private final static int[] CANDIDATE_MOVE_COORDINATES = {-9, -7, 7, 9};
 
-    Bishop(int position, Alliance alliance) {
-        super(position, alliance);
+    public Bishop(int position, Alliance alliance) {
+        super(PieceType.BISHOP, position, alliance);
     }
 
 
@@ -55,6 +55,11 @@ public class Bishop extends Piece{
             }
         }
         return ImmutableList.copyOf(legalMoves);
+    }
+
+    @Override
+    public String toString() {
+        return PieceType.BISHOP.toString();
     }
 
     private static boolean columnExclusion(final int position, final int offset) {

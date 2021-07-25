@@ -15,13 +15,13 @@ public abstract class Tile {
     private static Map<Integer, EmptyTile> createAllPossibleEmptyTiles() {
         final Map<Integer, EmptyTile> emptyTileMap = new HashMap<>();
 
-        for(int i=0; i<BoardUtils.NUM_TILES; i++){
+        for(int i = 0; i<BoardUtils.NUM_TILES; i++){
             emptyTileMap.put(i, new EmptyTile(i));
         }
 
         return ImmutableMap.copyOf(emptyTileMap);
-
     }
+
 
     private Tile(final int tileCoordinate){
         this.tileCoordinate = tileCoordinate;
@@ -38,8 +38,13 @@ public abstract class Tile {
     public abstract Piece getPiece();
 
     public static final class EmptyTile extends Tile{
-        EmptyTile(final int coordinate){
+        public EmptyTile(final int coordinate){
             super(coordinate);
+        }
+
+        @Override
+        public String toString() {
+            return "-";
         }
 
         @Override
@@ -60,6 +65,12 @@ public abstract class Tile {
         OccupiedTile(int tileCoordinate, final Piece pieceOnTile){
             super(tileCoordinate);
             this.pieceOnTile = pieceOnTile;
+        }
+
+        @Override
+        public String toString() {
+            return getPiece().getAlliance().isBlack() ?
+                    getPiece().toString().toLowerCase() : getPiece().toString();
         }
 
         @Override

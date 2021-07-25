@@ -10,15 +10,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static chessEngine.ChessBoard.BoardUtils.FIRST_COLUMN;
-import static chessEngine.ChessBoard.BoardUtils.isValidCoordinate;
+import static chessEngine.ChessBoard.BoardUtils.*;
 
 public class Rook extends Piece{
 
     private final static int[] CANDIDATE_MOVE_COORDINATES = {-8, -1, 1, 8};
 
-    Rook(int position, Alliance pieceAlliance) {
-        super(position, pieceAlliance);
+    public Rook(int position, Alliance pieceAlliance) {
+        super(PieceType.ROOK, position, pieceAlliance);
     }
 
     @Override
@@ -53,6 +52,11 @@ public class Rook extends Piece{
         return ImmutableList.copyOf(legalMoves);
     }
 
+    @Override
+    public String toString() {
+        return PieceType.ROOK.toString();
+    }
+
     private static boolean columnExclusion(final int position, final int offset) {
         return firstColumnExclusion(position, offset) ||
                 eighthColumnExclusion(position, offset);
@@ -63,7 +67,7 @@ public class Rook extends Piece{
     }
 
     private static boolean eighthColumnExclusion(final int position, final int offset) {
-        return FIRST_COLUMN[position] && (offset == 1);
+        return EIGHTH_COLUMN[position] && (offset == 1);
     }
 
 }

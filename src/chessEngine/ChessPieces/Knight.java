@@ -17,8 +17,8 @@ public class Knight extends Piece{
 
     private final static int[] CANDIDATE_MOVE_COORDINATES = {-17, -15, -10, -6, 6, 10, 15, 17};
 
-    Knight(int position, final Alliance alliance){
-        super(position, alliance);
+    public Knight(int position, final Alliance alliance){
+        super(PieceType.KNIGHT, position, alliance);
     }
 
     @Override
@@ -36,16 +36,21 @@ public class Knight extends Piece{
                 if(!targetTile.isTileOccupied()){
                     legalMoves.add(new StandardMove(board, this, target));
                 }else{
-                    final Piece TargetPiece = targetTile.getPiece();
-                    final Alliance otherAlliance = TargetPiece.getAlliance();
+                    final Piece targetPiece = targetTile.getPiece();
+                    final Alliance otherAlliance = targetPiece.getAlliance();
                     if(this.alliance != otherAlliance){
-                        legalMoves.add(new AttackMove(board, this, target, TargetPiece));
+                        legalMoves.add(new AttackMove(board, this, target, targetPiece));
                     }
                 }
 
             }
         }
         return ImmutableList.copyOf(legalMoves);
+    }
+
+    @Override
+    public String toString() {
+        return PieceType.KNIGHT.toString();
     }
 
 
@@ -70,7 +75,7 @@ public class Knight extends Piece{
     }
 
     private static boolean eighthColumnExclusion(final int currentPosition, final int candidateOffset){
-        return EIGTH_COLUMN[currentPosition] && ((candidateOffset == 17) || (candidateOffset == 10) ||
+        return EIGHTH_COLUMN[currentPosition] && ((candidateOffset == 17) || (candidateOffset == 10) ||
                 (candidateOffset == -6) || (candidateOffset == -15));
     }
 
