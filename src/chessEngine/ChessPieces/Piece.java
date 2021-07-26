@@ -9,22 +9,59 @@ import java.util.*;
 
 public abstract class Piece {
 
-    protected final PieceType pieceType;
+    protected final PieceType type;
     protected final int position;
     protected final Alliance alliance;
     protected final boolean isFirstMove;
+    private final int cachedHashCode;
 
     Piece(final PieceType pieceType,
           final int position,
           final Alliance pieceAlliance){
-        this.pieceType = pieceType;
+        this.type = pieceType;
         this.alliance = pieceAlliance;
         this.position = position;
         isFirstMove = false;
+        this.cachedHashCode = this.calculateHashCode();
     }
 
-    public PieceType getPieceType() {
-        return pieceType;
+    private int calculateHashCode() {
+        final int prime = 31;
+        int result = this.type.hashCode();
+        result = prime * result + this.alliance.hashCode();
+        result = prime * result + this.position;
+        result = prime * result + (isFirstMove ? 1 : 0);
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+        if(this == other) {
+            return true;
+        }
+        if (!(other instanceof  Piece)) {
+            return false;
+        }
+
+        final Piece otherPiece = (Piece) other;
+        return this.position == otherPiece.position &&
+                this.type == otherPiece.getType() &&
+                this.alliance == otherPiece.getAlliance() &&
+                this.isFirstMove == otherPiece.isFirstMove();
+
+    }
+
+    @Override
+    public int hashCode() {
+        return this.cachedHashCode;
+    }
+
+    public boolean isFirstMove() {
+        return isFirstMove;
+    }
+
+    public PieceType getType() {
+        return type;
     }
 
     public int getPosition() {
@@ -37,9 +74,7 @@ public abstract class Piece {
 
     public abstract Collection<Move> calculateLegalMoves(final Board board);
 
-    public boolean isFirstMove() {
-        return isFirstMove;
-    }
+    public abstract Piece movePiece(Move move);
 
     public enum PieceType {
 
@@ -48,10 +83,20 @@ public abstract class Piece {
             public boolean isKing() {
                 return false;
             }
+
+            @Override
+            public boolean isRook() {
+                return false;
+            }
         } ,
         KNIGHT("N") {
             @Override
             public boolean isKing() {
+                return false;
+            }
+
+            @Override
+            public boolean isRook() {
                 return false;
             }
         },
@@ -60,11 +105,21 @@ public abstract class Piece {
             public boolean isKing() {
                 return false;
             }
+
+            @Override
+            public boolean isRook() {
+                return false;
+            }
         },
         ROOK("R") {
             @Override
             public boolean isKing() {
                 return false;
+            }
+
+            @Override
+            public boolean isRook() {
+                return true;
             }
         },
         QUEEN("Q") {
@@ -72,11 +127,21 @@ public abstract class Piece {
             public boolean isKing() {
                 return false;
             }
+
+            @Override
+            public boolean isRook() {
+                return false;
+            }
         },
         KING("K") {
             @Override
             public boolean isKing() {
                 return true;
+            }
+
+            @Override
+            public boolean isRook() {
+                return false;
             }
         };
 
@@ -93,5 +158,6 @@ public abstract class Piece {
 
         public abstract boolean isKing();
 
+        public abstract boolean isRook();
     }
 }

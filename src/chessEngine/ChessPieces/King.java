@@ -35,7 +35,7 @@ public class King extends Piece {
             if(isValidCoordinate(target)) {
                 final Tile targetTile = board.getTile(target);
 
-                if (!targetTile.isTileOccupied()) {
+                if (!targetTile.isOccupied()) {
                     legalMoves.add(new StandardMove(board, this, target));
                 } else {
                     final Piece targetPiece = targetTile.getPiece();
@@ -55,6 +55,11 @@ public class King extends Piece {
         }
 
         return ImmutableList.copyOf(legalMoves);
+    }
+
+    @Override
+    public King movePiece(Move move) {
+        return new King(move.getDestination(), move.getMovedPiece().getAlliance());
     }
 
     @Override

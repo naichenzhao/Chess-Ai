@@ -36,7 +36,7 @@ public class Rook extends Piece{
                 target += coordinateOffset;
                 if(isValidCoordinate(target)) {
                     final Tile targetTile = board.getTile(target);
-                    if(!targetTile.isTileOccupied()){
+                    if(!targetTile.isOccupied()){
                         legalMoves.add(new Move.StandardMove(board, this, target));
                     }else{
                         final Piece TargetPiece = targetTile.getPiece();
@@ -50,6 +50,11 @@ public class Rook extends Piece{
             }
         }
         return ImmutableList.copyOf(legalMoves);
+    }
+
+    @Override
+    public Rook movePiece(Move move) {
+        return new Rook(move.getDestination(), move.getMovedPiece().getAlliance());
     }
 
     @Override

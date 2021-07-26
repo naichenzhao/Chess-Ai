@@ -33,7 +33,7 @@ public class Knight extends Piece{
                     continue;
 
                 final Tile targetTile = board.getTile(target);
-                if(!targetTile.isTileOccupied()){
+                if(!targetTile.isOccupied()){
                     legalMoves.add(new StandardMove(board, this, target));
                 }else{
                     final Piece targetPiece = targetTile.getPiece();
@@ -46,6 +46,11 @@ public class Knight extends Piece{
             }
         }
         return ImmutableList.copyOf(legalMoves);
+    }
+
+    @Override
+    public Knight movePiece(Move move) {
+        return new Knight(move.getDestination(), move.getMovedPiece().getAlliance());
     }
 
     @Override

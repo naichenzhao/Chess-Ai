@@ -8,7 +8,7 @@ import java.util.Map;
 
 public abstract class Tile {
 
-    protected final int tileCoordinate;
+    protected final int coordinate;
 
     private static final Map<Integer, EmptyTile> EMPTY_TILES_CACHE = createAllPossibleEmptyTiles();
 
@@ -23,8 +23,8 @@ public abstract class Tile {
     }
 
 
-    private Tile(final int tileCoordinate){
-        this.tileCoordinate = tileCoordinate;
+    private Tile(final int coordinate){
+        this.coordinate = coordinate;
 
     }
 
@@ -33,9 +33,13 @@ public abstract class Tile {
     }
 
 
-    public abstract boolean isTileOccupied();
+    public abstract boolean isOccupied();
 
     public abstract Piece getPiece();
+
+    public int getCoordinate() {
+        return this.coordinate;
+    }
 
     public static final class EmptyTile extends Tile{
         public EmptyTile(final int coordinate){
@@ -48,7 +52,7 @@ public abstract class Tile {
         }
 
         @Override
-        public boolean isTileOccupied(){
+        public boolean isOccupied(){
             return false;
         }
 
@@ -74,7 +78,7 @@ public abstract class Tile {
         }
 
         @Override
-        public boolean isTileOccupied(){
+        public boolean isOccupied(){
             return true;
         }
 

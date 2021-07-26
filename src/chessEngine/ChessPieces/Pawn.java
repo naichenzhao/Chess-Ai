@@ -31,21 +31,21 @@ public class Pawn extends Piece{
             if (!isValidCoordinate(target)) {
                 continue;
             }
-            if (target == 8 && board.getTile(target).isTileOccupied()) {
+            if (target == 8 && board.getTile(target).isOccupied()) {
                 // Handles standard move
                 //TODO: Add promotion
                 legalMoves.add(new StandardMove(board, this, target));
             } else if (candidateOffset == 16 && this.isFirstMove() && checkStartingPosition()) {
                 // Calculates jump move
                 final int middleCoordinate = this.position + (this.getAlliance().getDirection() * 8);
-                if (!board.getTile(middleCoordinate).isTileOccupied() && !board.getTile(target).isTileOccupied()) {
+                if (!board.getTile(middleCoordinate).isOccupied() && !board.getTile(target).isOccupied()) {
                     legalMoves.add(new StandardMove(board, this, target));
                 }
             } else if (candidateOffset == 7 &&
                     !((EIGHTH_COLUMN[this.position] && alliance.isWhite()) ||
                     (FIRST_COLUMN[this.position] && alliance.isBlack()))) {
                 // Handles attacking
-                if(board.getTile(target).isTileOccupied()) {
+                if(board.getTile(target).isOccupied()) {
                     final Piece targetPiece = board.getTile(target).getPiece();
                     if (targetPiece.getAlliance() != this.getAlliance()) {
                         // TODO: add more stuff
@@ -56,7 +56,7 @@ public class Pawn extends Piece{
                     !((FIRST_COLUMN[this.position] && alliance.isWhite()) ||
                     (EIGHTH_COLUMN[this.position] && alliance.isBlack()))) {
                 // Handles attacking
-                if(board.getTile(target).isTileOccupied()) {
+                if(board.getTile(target).isOccupied()) {
                     final Piece targetPiece = board.getTile(target).getPiece();
                     if (targetPiece.getAlliance() != this.getAlliance()) {
                         // TODO: add more stuff
@@ -67,6 +67,11 @@ public class Pawn extends Piece{
             }
         }
         return ImmutableList.copyOf(legalMoves);
+    }
+
+    @Override
+    public Pawn movePiece(Move move) {
+        return new Pawn(move.getDestination(), move.getMovedPiece().getAlliance());
     }
 
     @Override

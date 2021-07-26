@@ -6,6 +6,7 @@ import chessEngine.ChessBoard.Move;
 import chessEngine.ChessPieces.King;
 import chessEngine.ChessPieces.Piece;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,7 +25,7 @@ public abstract class Player {
 
         this.board = board;
         this.playerKing = establishKing();
-        this.legalMoves = legalMoves;
+        this.legalMoves = ImmutableList.copyOf(Iterables.concat(legalMoves, kingCastles(legalMoves, opponentMoves)));
         this.isInCheck = !Player.getIncomingAttacks(this.playerKing.getPosition(), opponentMoves).isEmpty();
 
     }
@@ -37,7 +38,7 @@ public abstract class Player {
         return this.legalMoves;
     }
 
-    private static Collection<Move> getIncomingAttacks(int targetPosition, Collection<Move> moves) {
+    protected static Collection<Move> getIncomingAttacks(int targetPosition, Collection<Move> moves) {
         final List<Move> attackMoves = new ArrayList<>();
 
         for(final Move move : moves) {
@@ -50,7 +51,7 @@ public abstract class Player {
 
     private King establishKing() {
         for(final Piece piece: getActivePieces()) {
-            if(piece.getPieceType().isKing()) {
+            if(piece.getType().isKing()) {
                 return (King) piece;
             }
         }
@@ -89,26 +90,25 @@ public abstract class Player {
     }
 
     public MoveTransition makeMove(final Move move) {
-
         if(!isMoveLegal(move)) {
             return new MoveTransition(this.board, move, MoveStatus.ILLEGAL_MOVE);
         }
 
         final Board transBoard = move.execute();
-
         final Collection<Move> kingAttacks = Player.getIncomingAttacks(
-                transBoard.getCurrentPlayer().getOpponent().getKing().getPosition(),
-                transBoard.getCurrentPlayer().getLegalMoves());
+                transBoard.getPlayer().getOpponent().getKing().getPosition(),
+                transBoard.getPlayer().getLegalMoves());
 
         if(!kingAttacks.isEmpty()) {
             return new MoveTransition(this.board, move, MoveStatus.LEAVES_PLAYER_IN_CHECK);
         }
-
         return new MoveTransition(transBoard, move, MoveStatus.DONE);
     }
 
     public abstract Collection<Piece> getActivePieces();
     public abstract Alliance getAlliance();
     public abstract Player getOpponent();
+    protected abstract Collection<Move> kingCastles( final Collection<Move> playerMoves,
+                                                     final Collection<Move> opponentMoves);
 
 }

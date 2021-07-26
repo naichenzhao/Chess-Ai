@@ -6,6 +6,7 @@ import chessEngine.Player.BlackPlayer;
 import chessEngine.Player.Player;
 import chessEngine.Player.WhitePlayer;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 import java.util.*;
 
@@ -55,7 +56,7 @@ public class Board {
         return this.blackPlayer;
     }
 
-    public Player getCurrentPlayer() {
+    public Player getPlayer() {
         return currentPlayer;
     }
 
@@ -80,7 +81,7 @@ public class Board {
         final List<Piece> activePieces = new ArrayList<>();
 
         for(final Tile tile: gameBoard) {
-            if(tile.isTileOccupied()) {
+            if(tile.isOccupied()) {
                 final Piece piece = tile.getPiece();
                 if(piece.getAlliance() == alliance) {
                     activePieces.add(piece);
@@ -155,11 +156,17 @@ public class Board {
         return builder.build();
     }
 
+    public Iterable<Move> getAllLegalMoves() {
+        return Iterables.unmodifiableIterable(Iterables.concat(
+                this.whitePlayer.getLegalMoves(), this.blackPlayer.getLegalMoves()));
+    }
+
 
     public static class Builder {
 
         Map<Integer, Piece> boardConfig;
         Alliance nextMoveMaker;
+        Pawn enPassantPawn;
 
         public Builder() {
             this.boardConfig = new HashMap<>();
@@ -180,8 +187,9 @@ public class Board {
         }
 
 
-
-
+        public void setEnPassantPawn(Pawn enPassantPawn) {
+            this.enPassantPawn = enPassantPawn;
+        }
     }
 
 

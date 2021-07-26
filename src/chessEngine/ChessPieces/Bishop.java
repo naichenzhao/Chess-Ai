@@ -41,7 +41,7 @@ public class Bishop extends Piece {
                 target += coordinateOffset;
                 if (isValidCoordinate(target)) {
                     final Tile targetTile = board.getTile(target);
-                    if (!targetTile.isTileOccupied()) {
+                    if (!targetTile.isOccupied()) {
                         legalMoves.add(new StandardMove(board, this, target));
                     } else {
                         final Piece targetPiece = targetTile.getPiece();
@@ -55,6 +55,11 @@ public class Bishop extends Piece {
             }
         }
         return ImmutableList.copyOf(legalMoves);
+    }
+
+    @Override
+    public Bishop movePiece(Move move) {
+        return new Bishop(move.getDestination(), move.getMovedPiece().getAlliance());
     }
 
     @Override

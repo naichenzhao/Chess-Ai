@@ -37,7 +37,7 @@ public class Queen extends Piece{
                 target += coordinateOffset;
                 if(isValidCoordinate(target)) {
                     final Tile targetTile = board.getTile(target);
-                    if(!targetTile.isTileOccupied()){
+                    if(!targetTile.isOccupied()){
                         legalMoves.add(new Move.StandardMove(board, this, target));
                     }else{
                         final Piece TargetPiece = targetTile.getPiece();
@@ -51,6 +51,11 @@ public class Queen extends Piece{
             }
         }
         return ImmutableList.copyOf(legalMoves);
+    }
+
+    @Override
+    public Queen movePiece(Move move) {
+        return new Queen(move.getDestination(), move.getMovedPiece().getAlliance());
     }
 
     @Override
