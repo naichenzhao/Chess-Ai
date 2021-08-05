@@ -3,7 +3,7 @@ package chessEngine;
 import chessEngine.ChessBoard.Board;
 import chessEngine.ChessBoard.Tile;
 
-public class Main {
+public class Chess {
 
     public static void main(String[] args) {
 
