@@ -31,6 +31,7 @@ public class Board {
 
         this.whitePlayer = new WhitePlayer(this, whiteLegalMoves, blackLegalMoves);
         this.blackPlayer = new BlackPlayer(this, whiteLegalMoves, blackLegalMoves);
+
         currentPlayer = builder.nextMoveMaker.choosePlayer(this.blackPlayer, this.whitePlayer);
     }
 
@@ -152,6 +153,7 @@ public class Board {
         builder.setPiece(new Pawn(54, Alliance.WHITE));
         builder.setPiece(new Pawn(55, Alliance.WHITE));
 
+        builder.setMoveMaker(Alliance.WHITE);
 
         return builder.build();
     }
