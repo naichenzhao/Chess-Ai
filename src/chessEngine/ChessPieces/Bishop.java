@@ -19,7 +19,7 @@ public class Bishop extends Piece {
     private final static int[] CANDIDATE_MOVE_COORDINATES = {-9, -7, 7, 9};
 
     public Bishop(int position, Alliance alliance) {
-        super(PieceType.BISHOP, position, alliance);
+        super(PieceType.BISHOP, position, alliance, true);
     }
 
 

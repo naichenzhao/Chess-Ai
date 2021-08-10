@@ -95,6 +95,7 @@ public abstract class Player {
         }
 
         final Board transBoard = move.execute();
+
         final Collection<Move> kingAttacks = Player.getIncomingAttacks(
                 transBoard.getPlayer().getOpponent().getKing().getPosition(),
                 transBoard.getPlayer().getLegalMoves());
