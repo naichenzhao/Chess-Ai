@@ -24,15 +24,11 @@ public class Pawn extends Piece{
     public Collection<Move> calculateLegalMoves(Board board) {
 
         final List<Move> legalMoves = new ArrayList<>();
-        System.out.println("pawn position: " + position);
 
         for (final int candidateOffset : CANDIDATE_MOVE_COORDINATES) {
             final int target = this.position + (this.getAlliance().getDirection() * candidateOffset);
-            System.out.println("target: " + target + " " + board.getTile(target).isOccupied());
-            System.out.println(this.isFirstMove());
 
             if (!isValidCoordinate(target)) {
-                System.out.println("not valid");
                 continue;
             }
             if (candidateOffset == 8 && !board.getTile(target).isOccupied()) {
@@ -41,7 +37,6 @@ public class Pawn extends Piece{
                 legalMoves.add(new StandardMove(board, this, target));
             } else if (candidateOffset == 16 && this.isFirstMove() && checkStartingPosition()) {
                 // Calculates jump move
-                System.out.println("work");
                 final int middleCoordinate = this.position + (this.getAlliance().getDirection() * 8);
                 if (!board.getTile(middleCoordinate).isOccupied() && !board.getTile(target).isOccupied()) {
                     legalMoves.add(new StandardMove(board, this, target));

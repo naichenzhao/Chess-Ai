@@ -28,7 +28,7 @@ public class Rook extends Piece{
         for(final int coordinateOffset: CANDIDATE_MOVE_COORDINATES) {
             int target = this.position;
 
-            if(columnExclusion(position, coordinateOffset))
+            if(columnExclusion(target, coordinateOffset))
                 break;
 
             while(isValidCoordinate(target)) {
@@ -68,11 +68,11 @@ public class Rook extends Piece{
     }
 
     private static boolean firstColumnExclusion(final int position, final int offset) {
-        return FIRST_COLUMN[position] && (offset == -1);
+        return position < NUM_TILES && FIRST_COLUMN[position] && (offset == -1);
     }
 
     private static boolean eighthColumnExclusion(final int position, final int offset) {
-        return EIGHTH_COLUMN[position] && (offset == 1);
+        return position < NUM_TILES && EIGHTH_COLUMN[position] && (offset == 1);
     }
 
 }

@@ -10,8 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static chessEngine.ChessBoard.BoardUtils.FIRST_COLUMN;
-import static chessEngine.ChessBoard.BoardUtils.isValidCoordinate;
+import static chessEngine.ChessBoard.BoardUtils.*;
 
 public class Queen extends Piece{
 
@@ -29,10 +28,9 @@ public class Queen extends Piece{
         for(final int coordinateOffset: CANDIDATE_MOVE_COORDINATES) {
             int target = this.position;
 
-            if(columnExclusion(position, coordinateOffset))
-                break;
-
             while(isValidCoordinate(target)) {
+                if(columnExclusion(target, coordinateOffset))
+                    break;
 
                 target += coordinateOffset;
                 if(isValidCoordinate(target)) {
@@ -69,11 +67,11 @@ public class Queen extends Piece{
     }
 
     private static boolean firstColumnExclusion(final int position, final int offset) {
-        return FIRST_COLUMN[position] && (offset == -9 || offset == 7 || offset == -1);
+        return position < NUM_TILES && FIRST_COLUMN[position] && (offset == -9 || offset == 7 || offset == -1);
     }
 
     private static boolean eighthColumnExclusion(final int position, final int offset) {
-        return FIRST_COLUMN[position] && (offset == 9 || offset == -7 || offset == 1);
+        return position < NUM_TILES && EIGHTH_COLUMN[position] && (offset == 9 || offset == -7 || offset == 1);
     }
 
 }
