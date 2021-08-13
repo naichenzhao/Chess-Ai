@@ -23,14 +23,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static javax.swing.SwingUtilities.isLeftMouseButton;
-import static javax.swing.SwingUtilities.isRightMouseButton;
+import static javax.swing.SwingUtilities.*;
 
 public class Table {
 
     private final JFrame gameFrame;
+    private final GameHistoryPanel gameHistoryPanel;
+    private final TakesPiecesPanel takenPiecesPanel;
     private final BoardPanel boardPanel;
     private Board chessBoard;
+    private final MoveLog moveLog;
 
     private Tile sourceTile;
     private Tile destinationTile;
@@ -38,7 +40,7 @@ public class Table {
     private BoardDirection boardDirection;
     private boolean highlightLegalMoves;
 
-    private final static Dimension OUTER_FRAME_DIMENSION = new Dimension(600, 600);
+    private final static Dimension OUTER_FRAME_DIMENSION = new Dimension(830, 600);
     private final static Dimension BOARD_PANEL_DIMENSION = new Dimension(400, 350);
     private final static Dimension TILE_PANEL_DIMENSION = new Dimension(10, 10);
 
@@ -48,6 +50,7 @@ public class Table {
 
     private final static Color lightTile = new Color(232, 235, 239);
     private final static Color darkTile = new Color(125, 135, 150);
+    private final static Color highlightTile = new Color(255, 6, 0);
 
     public Table() {
         this.gameFrame = new JFrame("chess");
@@ -59,12 +62,17 @@ public class Table {
         this.gameFrame.setSize(OUTER_FRAME_DIMENSION);
 
         this.chessBoard = Board.createStandardBoard();
+        this.gameHistoryPanel = new GameHistoryPanel();
+        this.takenPiecesPanel = new TakesPiecesPanel();
 
         this.boardDirection = BoardDirection.NORMAL;
         highlightLegalMoves = true;
 
         this.boardPanel = new BoardPanel();
+        this.moveLog = new MoveLog();
+        this.gameFrame.add(this.takenPiecesPanel, BorderLayout.WEST);
         this.gameFrame.add(this.boardPanel, BorderLayout.CENTER);
+        this.gameFrame.add(this.gameHistoryPanel, BorderLayout.EAST);
 
 
         this.gameFrame.setVisible(true);
@@ -253,6 +261,40 @@ public class Table {
 
     }
 
+    public static class MoveLog {
+
+        private final List<Move> moves;
+
+        MoveLog() {
+            this.moves = new ArrayList<>();
+        }
+
+        public List<Move> getMoves() {
+            return this.moves;
+        }
+
+        public void addMove(final Move move) {
+            this.moves.add(move);
+        }
+
+        public int size() {
+            return this.moves.size();
+        }
+
+        public void clear() {
+            this.moves.clear();
+        }
+
+        public Move removeMove(int index) {
+            return this.moves.remove(index);
+        }
+
+        public boolean removeMove(Move move) {
+            return this.moves.remove(move);
+        }
+
+    }
+
     private class TilePanel extends JPanel {
 
         private final int tileID;
@@ -284,36 +326,32 @@ public class Table {
                             final Move move = Move.MoveFactory.createMove(chessBoard, sourceTile.getCoordinate(), destinationTile.getCoordinate());
                             final MoveTransition transition = chessBoard.getPlayer().makeMove(move);
                             if(transition.getMoveStatus().isDone()) {
-
-                                chessBoard = transition.getBoard();
-                                // TODO: Add move to move log
+                                chessBoard = transition.getToBoard();
+                                moveLog.addMove(move);
                             }
                             sourceTile = null;
                             destinationTile = null;
                             humanMovedPiece = null;
                         }
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                boardPanel.drawBoard(chessBoard);
-                            }
+
+                        invokeLater(() -> {
+                            gameHistoryPanel.redo(chessBoard, moveLog);
+                            takenPiecesPanel.redo(moveLog);
+                            boardPanel.drawBoard(chessBoard);
                         });
                     }
                 }
 
                 @Override
                 public void mousePressed(MouseEvent e) {
-
                 }
 
                 @Override
                 public void mouseReleased(MouseEvent e) {
-
                 }
 
                 @Override
                 public void mouseEntered(MouseEvent e) {
-
                 }
 
                 @Override
@@ -351,11 +389,15 @@ public class Table {
             if(highlightLegalMoves) {
                 for(final Move move : pieceLegalMoves(board)) {
                     if(move.getDestination() == this.tileID) {
-                        try {
-                            String path = getUtilsPath() + "green_dot.png";
-                            add(new JLabel(new ImageIcon(ImageIO.read(new File(path)))));
-                        } catch(Exception e) {
-                            e.printStackTrace();
+                        if(board.getTile(this.tileID).isOccupied()) {
+                            setBorder(BorderFactory.createLineBorder(highlightTile, 5));
+                        } else {
+                            try {
+                                String path = getUtilsPath() + "green_dot.png";
+                                add(new JLabel(new ImageIcon(ImageIO.read(new File(path)))));
+                            } catch(Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -375,17 +417,15 @@ public class Table {
                BoardUtils.FIFTH_ROW[this.tileID] ||
                BoardUtils.SEVENTH_ROW[this.tileID]) {
                 setBackground(this.tileID % 2 == 0 ? lightTile : darkTile);
+                setBorder(null);
             } else if(BoardUtils.SECOND_ROW[this.tileID] ||
                     BoardUtils.FOURTH_ROW[this.tileID] ||
                     BoardUtils.SIXTH_ROW[this.tileID] ||
                     BoardUtils.EIGHTH_ROW[this.tileID]) {
                 setBackground(this.tileID % 2 != 0 ? lightTile : darkTile);
+                setBorder(null);
             }
-
-
         }
-
-
     }
 
 
@@ -411,6 +451,10 @@ public class Table {
 
     private static String getUtilsPath() {
         return CWD + File.separator + "art" + File.separator + ".utils" + File.separator;
+    }
+
+    public static String getImagePath() {
+        return pieceImagePath;
     }
 
 

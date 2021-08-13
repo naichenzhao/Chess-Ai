@@ -91,19 +91,13 @@ public abstract class Player {
 
     public MoveTransition makeMove(final Move move) {
         if(!isMoveLegal(move)) {
-            return new MoveTransition(this.board, move, MoveStatus.ILLEGAL_MOVE);
+            return new MoveTransition(this.board, this.board, move, MoveStatus.ILLEGAL_MOVE);
         }
 
         final Board transBoard = move.execute();
-
-        final Collection<Move> kingAttacks = Player.getIncomingAttacks(
-                transBoard.getPlayer().getOpponent().getKing().getPosition(),
-                transBoard.getPlayer().getLegalMoves());
-
-        if(!kingAttacks.isEmpty()) {
-            return new MoveTransition(this.board, move, MoveStatus.LEAVES_PLAYER_IN_CHECK);
-        }
-        return new MoveTransition(transBoard, move, MoveStatus.DONE);
+        return transBoard.getPlayer().getOpponent().isInCheck() ?
+                new MoveTransition(this.board, this.board, move, MoveStatus.LEAVES_PLAYER_IN_CHECK) :
+                new MoveTransition(this.board, transBoard, move, MoveStatus.DONE);
     }
 
     public abstract Collection<Piece> getActivePieces();

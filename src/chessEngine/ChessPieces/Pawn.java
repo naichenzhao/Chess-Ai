@@ -38,12 +38,12 @@ public class Pawn extends Piece{
             if (candidateOffset == 8 && !board.getTile(target).isOccupied()) {
                 // Handles standard move
                 //TODO: Add promotion
-                legalMoves.add(new PawnJump(board, this, target));
+                legalMoves.add(new StandardMove(board, this, target));
             } else if (candidateOffset == 16 && this.isFirstMove() && checkStartingPosition()) {
                 // Calculates jump move
                 final int middleCoordinate = this.position + (this.getAlliance().getDirection() * 8);
                 if (!board.getTile(middleCoordinate).isOccupied() && !board.getTile(target).isOccupied()) {
-                    legalMoves.add(new StandardMove(board, this, target));
+                    legalMoves.add(new PawnJump(board, this, target));
                 }
             } else if (candidateOffset == 7 &&
                     !((EIGHTH_COLUMN[this.position] && alliance.isWhite()) ||
