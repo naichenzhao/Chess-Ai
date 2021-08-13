@@ -36,6 +36,7 @@ public class Table {
     private Tile destinationTile;
     private Piece humanMovedPiece;
     private BoardDirection boardDirection;
+    private boolean highlightLegalMoves;
 
     private final static Dimension OUTER_FRAME_DIMENSION = new Dimension(600, 600);
     private final static Dimension BOARD_PANEL_DIMENSION = new Dimension(400, 350);
@@ -60,6 +61,7 @@ public class Table {
         this.chessBoard = Board.createStandardBoard();
 
         this.boardDirection = BoardDirection.NORMAL;
+        highlightLegalMoves = true;
 
         this.boardPanel = new BoardPanel();
         this.gameFrame.add(this.boardPanel, BorderLayout.CENTER);
@@ -103,6 +105,7 @@ public class Table {
 
     private JMenu createPreferenceMenu() {
         final JMenu preferenceMenu = new JMenu("Preferences");
+
         final JMenuItem flipBoardMenuItem = new JMenuItem("Flip Board");
         flipBoardMenuItem.addActionListener(new ActionListener() {
             @Override
@@ -112,7 +115,20 @@ public class Table {
             }
         });
 
+
+        final JCheckBoxMenuItem legalMoveHighlighter = new JCheckBoxMenuItem("Highlight Legal Moves", true);
+        legalMoveHighlighter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                highlightLegalMoves = legalMoveHighlighter.isSelected();
+            }
+        });
+
+
         preferenceMenu.add(flipBoardMenuItem);
+        preferenceMenu.addSeparator();
+
+        preferenceMenu.add(legalMoveHighlighter);
         preferenceMenu.add(pieceStyleSelectorMenu());
 
         return preferenceMenu;
@@ -332,7 +348,7 @@ public class Table {
         }
 
         private void highlightLegalMoves( final Board board) {
-            if(true) {
+            if(highlightLegalMoves) {
                 for(final Move move : pieceLegalMoves(board)) {
                     if(move.getDestination() == this.tileID) {
                         try {

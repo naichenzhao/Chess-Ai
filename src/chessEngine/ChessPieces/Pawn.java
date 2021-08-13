@@ -20,6 +20,10 @@ public class Pawn extends Piece{
         super(PieceType.PAWN, position, pieceAlliance, true);
     }
 
+    public Pawn(int position, Alliance pieceAlliance, boolean isFirstMove) {
+        super(PieceType.KING, position, pieceAlliance, isFirstMove);
+    }
+
     @Override
     public Collection<Move> calculateLegalMoves(Board board) {
 
@@ -34,7 +38,7 @@ public class Pawn extends Piece{
             if (candidateOffset == 8 && !board.getTile(target).isOccupied()) {
                 // Handles standard move
                 //TODO: Add promotion
-                legalMoves.add(new StandardMove(board, this, target));
+                legalMoves.add(new PawnJump(board, this, target));
             } else if (candidateOffset == 16 && this.isFirstMove() && checkStartingPosition()) {
                 // Calculates jump move
                 final int middleCoordinate = this.position + (this.getAlliance().getDirection() * 8);
@@ -49,7 +53,7 @@ public class Pawn extends Piece{
                     final Piece targetPiece = board.getTile(target).getPiece();
                     if (targetPiece.getAlliance() != this.getAlliance()) {
                         // TODO: add more stuff
-                        legalMoves.add(new AttackMove(board, this, target, targetPiece));
+                        legalMoves.add(new PawnAttackMove(board, this, target, targetPiece));
                     }
                 }
             } else if (candidateOffset == 9 &&
@@ -60,7 +64,7 @@ public class Pawn extends Piece{
                     final Piece targetPiece = board.getTile(target).getPiece();
                     if (targetPiece.getAlliance() != this.getAlliance()) {
                         // TODO: add more stuff
-                        legalMoves.add(new AttackMove(board, this, target, targetPiece));
+                        legalMoves.add(new PawnAttackMove(board, this, target, targetPiece));
                     }
                 }
 

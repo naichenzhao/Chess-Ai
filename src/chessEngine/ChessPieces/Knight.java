@@ -21,6 +21,10 @@ public class Knight extends Piece{
         super(PieceType.KNIGHT, position, alliance, true);
     }
 
+    public Knight(int position, Alliance pieceAlliance, boolean isFirstMove) {
+        super(PieceType.KING, position, pieceAlliance, isFirstMove);
+    }
+
     @Override
     public List<Move> calculateLegalMoves(final Board board) {
         final List<Move> legalMoves = new ArrayList<>();

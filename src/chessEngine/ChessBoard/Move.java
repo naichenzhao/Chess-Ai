@@ -7,9 +7,10 @@ import chessEngine.ChessPieces.Rook;
 
 public abstract class Move {
 
-    final Board board;
-    final Piece movedPiece;
-    final int destination;
+    protected final Board board;
+    protected final Piece movedPiece;
+    protected final int destination;
+    protected boolean isFirstMove;
 
     public static Move NULL_MOVE = new NullMove();
 
@@ -20,7 +21,15 @@ public abstract class Move {
         this.board = board;
         this.movedPiece = movedPiece;
         this.destination = destination;
+        this.isFirstMove = movedPiece.isFirstMove();
 
+    }
+
+    private Move(final Board board, final int destination) {
+        this.board = board;
+        this.movedPiece = null;
+        this.destination = destination;
+        this.isFirstMove = false;
     }
 
     @Override
