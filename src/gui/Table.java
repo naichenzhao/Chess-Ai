@@ -449,7 +449,7 @@ public class Table {
         return CWD + File.separator + "art" + File.separator + "default" + File.separator;
     }
 
-    private static String getUtilsPath() {
+    public static String getUtilsPath() {
         return CWD + File.separator + "art" + File.separator + ".utils" + File.separator;
     }
 

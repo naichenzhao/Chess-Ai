@@ -320,12 +320,17 @@ public abstract class Move {
     public static class NullMove extends Move {
 
         public NullMove() {
-            super(null, -1);
+            super(null, 65);
         }
 
         @Override
         public Board execute() {
             throw new RuntimeException("Cant execute null move you dumbass");
+        }
+
+        @Override
+        public int getPosition() {
+            return -1;
         }
     }
 
