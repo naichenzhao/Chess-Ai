@@ -21,75 +21,35 @@ import java.util.List;
 
 public class TakesPiecesPanel extends JPanel {
 
-    private final JScrollPane whitePanel;
-    private final JScrollPane blackPanel;
+    private final DataModel model;
+    private final JScrollPane scrollPane;
 
     private static Color PANEL_COLOUR = new Color(253, 245, 230);
     private static final Dimension TAKEN_PIECES_DIMENSION = new Dimension(120, 80);
     private static final EtchedBorder PANEL_BORDER = new EtchedBorder(EtchedBorder.RAISED);
 
     public TakesPiecesPanel() {
-//        super(new BorderLayout());
-//        setBackground(PANEL_COLOUR);
-//        setBorder(PANEL_BORDER);
-//
-//        this.whitePanel = new JScrollPane(new GridLayout(8, 2));
-//        this.blackPanel = new JScrollPane(new GridLayout(8, 2));
-//
-//
-//        this.whitePanel.setBackground(PANEL_COLOUR);
-//        this.whitePanel.setBorder(BorderFactory.createTitledBorder("White"));
-//        addBlankImage(whitePanel);
-//
-//        this.blackPanel.setBackground(PANEL_COLOUR);
-//        this.blackPanel.setBorder(BorderFactory.createTitledBorder("Black"));
-//        addBlankImage(blackPanel);
-//
-//        add(this.whitePanel, BorderLayout.WEST);
-//        add(this.blackPanel, BorderLayout.EAST);
-//
-//        setPreferredSize(TAKEN_PIECES_DIMENSION);
-//        this.setVisible(true);
+        super(new BorderLayout());
+        setBackground(PANEL_COLOUR);
+        setBorder(PANEL_BORDER);
+        model = new DataModel();
+
+        final JTable table = new JTable(model);
+        table.setRowHeight(15);
+        this.scrollPane = new JScrollPane(table);
+
+        scrollPane.setColumnHeaderView(table.getTableHeader());
+        scrollPane.setPreferredSize(TAKEN_PIECES_DIMENSION);
+
+        this.add(scrollPane, BorderLayout.CENTER);
+        this.setVisible(true);
     }
 
     public void redo(final MoveLog moveLog) {
 
-        this.blackPanel.removeAll();
-        this.whitePanel.removeAll();
+        model.readMoveLog(moveLog);
 
-        final List<Piece> whiteTakenPieces = new ArrayList<>();
-        final List<Piece> blackTakenPieces = new ArrayList<>();
-
-        for(final Move move : moveLog.getMoves()) {
-            if(move.isAttack()) {
-                final Piece takenPiece = move.getAttackedPiece();
-                if(takenPiece.getAlliance().isWhite()) {
-                    whiteTakenPieces.add(takenPiece);
-                } else if(takenPiece.getAlliance().isBlack()) {
-                    blackTakenPieces.add(takenPiece);
-                } else {
-                    throw new RuntimeException("fuck. you did something wrong");
-                }
-            }
-        }
-
-        Collections.sort(whiteTakenPieces, new Comparator<>() {
-
-            @Override
-            public int compare(Piece o1, Piece o2) {
-                return Ints.compare(o1.getType().getValue(), o2.getType().getValue());
-            }
-        });
-
-        Collections.sort(blackTakenPieces, new Comparator<Piece>() {
-
-            @Override
-            public int compare(Piece o1, Piece o2) {
-                return Ints.compare(o1.getType().getValue(), o2.getType().getValue());
-            }
-        });
-
-        for(final Piece takenPiece : whiteTakenPieces) {
+        for(final Piece takenPiece : model.getWhiteTakenPieces()) {
             final BufferedImage image;
             try {
                 String path = Table.getImagePath() +
@@ -107,7 +67,7 @@ public class TakesPiecesPanel extends JPanel {
 
         }
 
-        for(final Piece takenPiece : blackTakenPieces) {
+        for(final Piece takenPiece : model.getBlackTakenPieces()) {
             final BufferedImage image;
             try {
                 String path = Table.getImagePath() +
@@ -148,33 +108,24 @@ public class TakesPiecesPanel extends JPanel {
 
     private static class DataModel extends DefaultTableModel {
 
+        private final List<Row> values;
         private static final String[] NAMES = {"White", "Black"};
-        List<Piece> whiteTakenPieces;
-        List<Piece> blackTakenPieces;
 
-        public DataModel() {
-            whiteTakenPieces = new ArrayList<>();
-            blackTakenPieces = new ArrayList<>();
-
+        DataModel() {
+            this.values = new ArrayList<>();
         }
 
         public void clear() {
-            this.whiteTakenPieces.clear();
-            this.blackTakenPieces.clear();
+            this.values.clear();
             setRowCount(0);
-        }
-
-        public List<Piece> getWhiteTakenPieces() {
-            return ImmutableList.copyOf(whiteTakenPieces);
-        }
-
-        public List<Piece> getBlackTakenPieces() {
-            return ImmutableList.copyOf(blackTakenPieces);
         }
 
         @Override
         public int getRowCount() {
-            return Math.max(whiteTakenPieces.size(), blackTakenPieces.size());
+            if (this.values == null) {
+                return 0;
+            }
+            return this.values.size();
         }
 
         @Override
@@ -182,41 +133,68 @@ public class TakesPiecesPanel extends JPanel {
             return NAMES.length;
         }
 
-        public int readMoveLog(final MoveLog moveLog) {
-
-            for(final Move move : moveLog.getMoves()) {
-                if(move.isAttack()) {
-                    final Piece takenPiece = move.getAttackedPiece();
-                    if(takenPiece.getAlliance().isWhite()) {
-                        whiteTakenPieces.add(takenPiece);
-                    } else if(takenPiece.getAlliance().isBlack()) {
-                        blackTakenPieces.add(takenPiece);
-                    } else {
-                        throw new RuntimeException("fuck. you did something wrong");
-                    }
-                }
+        @Override
+        public Object getValueAt(final int row, final int col) {
+            final Row currentRow = this.values.get(row);
+            if(col == 0) {
+                return currentRow.getWhiteMove();
+            } else if(col == 1) {
+                return currentRow.getBlackMove();
             }
-
-            Collections.sort(whiteTakenPieces, new Comparator<>() {
-
-                @Override
-                public int compare(Piece o1, Piece o2) {
-                    return Ints.compare(o1.getType().getValue(), o2.getType().getValue());
-                }
-            });
-
-            Collections.sort(blackTakenPieces, new Comparator<Piece>() {
-
-                @Override
-                public int compare(Piece o1, Piece o2) {
-                    return Ints.compare(o1.getType().getValue(), o2.getType().getValue());
-                }
-            });
-
-
-
+            return null;
         }
 
+        @Override
+        public void setValueAt(final Object value, final int row, final int col) {
+            final Row currentRow;
+            if (this.values.size() <= row) {
+                currentRow = new Row();
+                this.values.add(currentRow);
+            } else {
+                currentRow = this.values.get(row);
+            }
+
+            if (col == 0) {
+                currentRow.setWhiteMove((ImageIcon) value);
+                fireTableRowsInserted(row, col);
+            }else if(col == 1) {
+                currentRow.setBlackMove((ImageIcon) value);
+                fireTableCellUpdated(row, col);
+            }
+        }
+
+        @Override
+        public Class<?> getColumnClass(final int column) {
+            return Move.class;
+        }
+
+        @Override
+        public String getColumnName(final int column) {
+            return NAMES[column];
+        }
+
+    }
+
+    private static class Row {
+
+        private ImageIcon whiteMove;
+        private ImageIcon blackMove;
+
+        public ImageIcon getWhiteMove() {
+            return this.whiteMove;
+        }
+
+        public ImageIcon getBlackMove() {
+            return this.blackMove;
+        }
+
+        public void setWhiteMove(final ImageIcon move) {
+            this.whiteMove = move;
+        }
+
+        public void setBlackMove(final ImageIcon move) {
+            this.blackMove = move;
+        }
 
     }
 

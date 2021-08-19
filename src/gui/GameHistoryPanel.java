@@ -118,7 +118,7 @@ public class GameHistoryPanel extends JPanel {
 
             if (col == 0) {
                 currentRow.setWhiteMove((String) value);
-                fireTableRowsInserted(row, row);
+                fireTableRowsInserted(row, col);
             }else if(col == 1) {
                 currentRow.setBlackMove((String) value);
                 fireTableCellUpdated(row, col);
