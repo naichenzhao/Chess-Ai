@@ -182,6 +182,7 @@ public class Table {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pieceImagePath = getDefaultPath();
+                takenPiecesPanel.redo(moveLog);
                 boardPanel.drawBoard(chessBoard);
             }
         });
@@ -191,6 +192,7 @@ public class Table {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pieceImagePath = getFancyPiecePath();
+                takenPiecesPanel.redo(moveLog);
                 boardPanel.drawBoard(chessBoard);
             }
         });
@@ -200,6 +202,7 @@ public class Table {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pieceImagePath = getFancy2PiecePath();
+                takenPiecesPanel.redo(moveLog);
                 boardPanel.drawBoard(chessBoard);
             }
         });
@@ -209,6 +212,7 @@ public class Table {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pieceImagePath = getHolyWarriorsPiecePath();
+                takenPiecesPanel.redo(moveLog);
                 boardPanel.drawBoard(chessBoard);
             }
         });
@@ -218,6 +222,7 @@ public class Table {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pieceImagePath = getSimplePiecePath();
+                takenPiecesPanel.redo(moveLog);
                 boardPanel.drawBoard(chessBoard);
             }
         });
@@ -339,6 +344,27 @@ public class Table {
                             takenPiecesPanel.redo(moveLog);
                             boardPanel.drawBoard(chessBoard);
                         });
+
+                        if(chessBoard.getBlackPlayer().isInCheckMate()) {
+                            JOptionPane.showMessageDialog(null, new JLabel("White has won"));
+                            sourceTile = null;
+                            destinationTile = null;
+                            humanMovedPiece = null;
+                        }
+
+                        if(chessBoard.getWhitePlayer().isInCheckMate()) {
+                            JOptionPane.showMessageDialog(null, new JLabel("Black has won"));
+                            sourceTile = null;
+                            destinationTile = null;
+                            humanMovedPiece = null;
+                        }
+
+                        if(chessBoard.getWhitePlayer().isInStaleMate() || chessBoard.getBlackPlayer().isInStaleMate()) {
+                            JOptionPane.showMessageDialog(null, new JLabel("Game Draw"));
+                            sourceTile = null;
+                            destinationTile = null;
+                            humanMovedPiece = null;
+                        }
                     }
                 }
 
@@ -385,7 +411,7 @@ public class Table {
 
         }
 
-        private void highlightLegalMoves( final Board board) {
+        private void highlightLegalMoves(final Board board) {
             if(highlightLegalMoves) {
                 for(final Move move : pieceLegalMoves(board)) {
                     if(move.getDestination() == this.tileID) {

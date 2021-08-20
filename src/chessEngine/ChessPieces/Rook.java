@@ -32,10 +32,10 @@ public class Rook extends Piece{
         for(final int coordinateOffset: CANDIDATE_MOVE_COORDINATES) {
             int target = this.position;
 
-            if(columnExclusion(target, coordinateOffset))
-                break;
-
             while(isValidCoordinate(target)) {
+
+                if(columnExclusion(target, coordinateOffset))
+                    break;
 
                 target += coordinateOffset;
                 if(isValidCoordinate(target)) {

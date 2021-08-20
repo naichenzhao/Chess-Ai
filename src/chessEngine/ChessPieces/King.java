@@ -33,29 +33,32 @@ public class King extends Piece {
         for(final int coordinateOffset : CANDIDATE_MOVE_COORDINATES) {
             final int target = this.position + coordinateOffset;
 
-            if(columnExclusion(this.position,coordinateOffset))
+            if (columnExclusion(this.position, coordinateOffset))
                 continue;
 
-            if(isValidCoordinate(target)) {
+            if (isValidCoordinate(target)) {
                 final Tile targetTile = board.getTile(target);
 
                 if (!targetTile.isOccupied()) {
-                    legalMoves.add(new StandardMove(board, this, target));
+                    if (board.getBlackPlayer() != null && board.getWhitePlayer() != null) {
+                        Collection<Move> blackMoves = board.getBlackPlayer().getLegalMoves();
+                        Collection<Move> whiteMoves = board.getWhitePlayer().getLegalMoves();
+                        Collection<Move> allMoves = this.alliance.isBlack() ? blackMoves : whiteMoves;
+                        if (getIncomingAttacks(target, allMoves).isEmpty()) {
+                            legalMoves.add(new StandardMove(board, this, target));
+                        }
+                    } else {
+                        legalMoves.add(new StandardMove(board, this, target));
+                    }
+
                 } else {
                     final Piece targetPiece = targetTile.getPiece();
                     final Alliance otherAlliance = targetPiece.getAlliance();
-                    if(this.alliance != otherAlliance) {
+                    if (this.alliance != otherAlliance) {
                         legalMoves.add(new AttackMove(board, this, target, targetPiece));
                     }
-
-
                 }
-
-
             }
-
-
-
         }
 
         return ImmutableList.copyOf(legalMoves);
@@ -69,6 +72,17 @@ public class King extends Piece {
     @Override
     public String toString() {
         return PieceType.KING.toString();
+    }
+
+    protected static Collection<Move> getIncomingAttacks(int targetPosition, Collection<Move> moves) {
+        final List<Move> attackMoves = new ArrayList<>();
+
+        for(final Move move : moves) {
+            if(targetPosition == move.getDestination()) {
+                attackMoves.add(move);
+            }
+        }
+        return ImmutableList.copyOf(attackMoves);
     }
 
     private static boolean columnExclusion(final int position, final int offset) {

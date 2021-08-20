@@ -2,7 +2,6 @@ package gui;
 
 import chessEngine.ChessBoard.Move;
 import chessEngine.ChessPieces.Piece;
-import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 import gui.Table.MoveLog;
 
@@ -35,7 +34,7 @@ public class TakesPiecesPanel extends JPanel {
         model = new DataModel();
 
         final JTable table = new JTable(model);
-        table.setRowHeight(15);
+        table.setRowHeight(45);
         this.scrollPane = new JScrollPane(table);
 
         scrollPane.setColumnHeaderView(table.getTableHeader());
@@ -47,76 +46,40 @@ public class TakesPiecesPanel extends JPanel {
 
     public void redo(final MoveLog moveLog) {
 
-        model.readMoveLog(moveLog);
+        model.clear();
 
-        for(final Piece takenPiece : model.getWhiteTakenPieces()) {
-            final BufferedImage image;
-            try {
-                String path = Table.getImagePath() +
-                        takenPiece.getAlliance().toString().substring(0, 1) +
-                        takenPiece + ".gif";
-                image = ImageIO.read(new File(path));
-                final JLabel imageLabel = new JLabel(new ImageIcon(image.getScaledInstance(
-                        image.getWidth() - 15, image.getWidth() - 15, Image.SCALE_SMOOTH)));
-                System.out.println(image.getWidth() - 15);
-                imageLabel.setBackground(PANEL_COLOUR);
-                this.blackPanel.add(imageLabel);
-            } catch (IOException e) {
-                e.printStackTrace();
+        int blackRow = 0;
+        int whiteRow = 0;
+
+        for(final Move move : moveLog.getMoves()) {
+            if(move.isAttack()) {
+                final Piece takenPiece = move.getAttackedPiece();
+
+                if(takenPiece.getAlliance().isWhite()) {
+                    model.setValueAt(takenPiece, whiteRow, 0);
+                    whiteRow++;
+                } else if(takenPiece.getAlliance().isBlack()) {
+                    model.setValueAt(takenPiece, blackRow, 1);
+                    blackRow++;
+                } else {
+                    throw new RuntimeException("fuck. you did something wrong");
+                }
             }
-
         }
-
-        for(final Piece takenPiece : model.getBlackTakenPieces()) {
-            final BufferedImage image;
-            try {
-                String path = Table.getImagePath() +
-                        takenPiece.getAlliance().toString().substring(0, 1) +
-                        takenPiece.toString() + ".gif";
-                image = ImageIO.read(new File(path));
-                final JLabel imageLabel = new JLabel(new ImageIcon(image.getScaledInstance(
-                        image.getWidth() - 15, image.getWidth() - 15, Image.SCALE_SMOOTH)));
-                imageLabel.setBackground(PANEL_COLOUR);
-                this.whitePanel.add(imageLabel);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
-
-        validate();
-
-
-    }
-
-
-
-    public static void addBlankImage(JPanel panel) {
-        JLabel imageLabel = null;
-        try {
-            String path = Table.getUtilsPath() + "Blank.gif";
-            final BufferedImage image;
-            image = ImageIO.read(new File(path));
-            imageLabel = new JLabel(new ImageIcon(image.getScaledInstance(45, 1, Image.SCALE_SMOOTH)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        panel.add(imageLabel);
 
     }
 
     private static class DataModel extends DefaultTableModel {
 
-        private final List<Row> values;
+        private Column[] values;
         private static final String[] NAMES = {"White", "Black"};
 
         DataModel() {
-            this.values = new ArrayList<>();
+            this.values = new Column[]{new Column(), new Column()};;
         }
 
         public void clear() {
-            this.values.clear();
+            this.values = new Column[]{new Column(), new Column()};;
             setRowCount(0);
         }
 
@@ -125,7 +88,7 @@ public class TakesPiecesPanel extends JPanel {
             if (this.values == null) {
                 return 0;
             }
-            return this.values.size();
+            return Math.max(this.values[0].getSize(), this.values[1].getSize());
         }
 
         @Override
@@ -135,37 +98,20 @@ public class TakesPiecesPanel extends JPanel {
 
         @Override
         public Object getValueAt(final int row, final int col) {
-            final Row currentRow = this.values.get(row);
-            if(col == 0) {
-                return currentRow.getWhiteMove();
-            } else if(col == 1) {
-                return currentRow.getBlackMove();
-            }
-            return null;
+            final Column currentCol = this.values[col];
+            return currentCol.getValue(row);
         }
 
         @Override
         public void setValueAt(final Object value, final int row, final int col) {
-            final Row currentRow;
-            if (this.values.size() <= row) {
-                currentRow = new Row();
-                this.values.add(currentRow);
-            } else {
-                currentRow = this.values.get(row);
-            }
-
-            if (col == 0) {
-                currentRow.setWhiteMove((ImageIcon) value);
-                fireTableRowsInserted(row, col);
-            }else if(col == 1) {
-                currentRow.setBlackMove((ImageIcon) value);
-                fireTableCellUpdated(row, col);
-            }
+            final Column currentCol = this.values[col];
+            currentCol.addValue(row, (Piece) value);
+            fireTableRowsInserted(row, col);
         }
 
         @Override
         public Class<?> getColumnClass(final int column) {
-            return Move.class;
+            return ImageIcon.class;
         }
 
         @Override
@@ -175,25 +121,66 @@ public class TakesPiecesPanel extends JPanel {
 
     }
 
-    private static class Row {
+    private static class Column {
 
-        private ImageIcon whiteMove;
-        private ImageIcon blackMove;
+        private List<Piece> pieces;
 
-        public ImageIcon getWhiteMove() {
-            return this.whiteMove;
+        private ImageIcon blankImage;
+
+        public Column() {
+            pieces = new ArrayList<>();
+            try {
+                String path = Table.getUtilsPath() + "Blank.gif";
+                final BufferedImage image;
+                image = ImageIO.read(new File(path));
+                blankImage = new ImageIcon(image.getScaledInstance(45, 1, Image.SCALE_SMOOTH));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-        public ImageIcon getBlackMove() {
-            return this.blackMove;
+        public void addValue(int index, Piece value) {
+            if(index >= pieces.size()) {
+                pieces.add(value);
+            }
+            pieces.set(index, value);
+
+            Collections.sort(pieces, new Comparator<>() {
+                @Override
+                public int compare(Piece o1, Piece o2) {
+                    return Ints.compare(o1.getType().getValue(), o2.getType().getValue());
+                }
+
+            });
         }
 
-        public void setWhiteMove(final ImageIcon move) {
-            this.whiteMove = move;
+        public ImageIcon getValue(int index) {
+            if(index < pieces.size()) {
+                Piece currentPiece = pieces.get(index);
+                BufferedImage image;
+                try {
+                    String path = Table.getImagePath() +
+                            currentPiece.getAlliance().toString().substring(0, 1) +
+                            currentPiece + ".gif";
+                    image = ImageIO.read(new File(path));
+                    final ImageIcon imageLabel = new ImageIcon(image.getScaledInstance(
+                            image.getWidth() - 15, image.getWidth() - 15, Image.SCALE_SMOOTH));
+                    return imageLabel;
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return blankImage;
         }
 
-        public void setBlackMove(final ImageIcon move) {
-            this.blackMove = move;
+        public int getSize() {
+            return pieces.size();
+        }
+
+        @Override
+        public String toString() {
+            return this.pieces.toString();
         }
 
     }
