@@ -55,6 +55,8 @@ public class Pawn extends Piece{
                         // TODO: add more stuff
                         legalMoves.add(new PawnAttackMove(board, this, target, targetPiece));
                     }
+                } else if(board.getEnPassantPawn() != null) {
+
                 }
             } else if (candidateOffset == 9 &&
                     !((FIRST_COLUMN[this.position] && alliance.isWhite()) ||
