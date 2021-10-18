@@ -1,2 +1,5 @@
 # chessEngine.ChessBoard-Ai
- I wanna f*king die mate
+Custom chess engine based off of tutorial
+
+Engine: Complete
+AI: Incomplete
